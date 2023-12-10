@@ -279,10 +279,17 @@ def main():
     argparser.add_argument('--format', choices=['a4', 'a5two', 'svg'], default='A4', help="Page format")
     argparser.add_argument('--page-num', type=int, help="Number the pages starting at the given number")
     argparser.add_argument('--solution', action='store_true', help="Output the solution (fill in the boxes)")
+    argparser.add_argument('--output', help="Name of the output file")
     argparser.add_argument('CROSSWORD', nargs='+', type=argparse.FileType('rb'), help="Input files")
     args = argparser.parse_args()
     
-    f = open('out.html', 'w')
+    if args.output:
+        output_filename = args.output
+    elif args.format == 'svg':
+        output_filename = 'out.svg'
+    else:
+        output_filename = 'out.html' 
+    f = open(output_filename, 'w')
     for i, cw in enumerate(args.CROSSWORD):
         config = tomllib.load(cw)
         
@@ -302,8 +309,7 @@ def main():
             case 'a5two':
                 write_a5_two_page(f, config, grid, args.page_num + i * 2, clues_horizontal, clues_vertical, args.solution)
             case 'svg':
-                with open('out.svg', 'w') as f:
-                    f.write(svg_grid(grid, args.solution, svg_file=True))
+                f.write(svg_grid(grid, args.solution, svg_file=True))
     f.close()
 
 main()
