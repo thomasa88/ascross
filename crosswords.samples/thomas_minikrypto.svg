@@ -16,13 +16,12 @@
 <use href="#letter" x="80" y="20" />
 <text x="81.5" y="25.5" font-size="5" font-family="sans-serif" color="#000000">5</text>
 <use href="#letter" x="20" y="40" />
-<text x="21.5" y="45.5" font-size="5" font-family="sans-serif" color="#000000">6</text>
 <use href="#blocked" x="40" y="40" />
 <use href="#letter" x="60" y="40" />
-<text x="61.5" y="45.5" font-size="5" font-family="sans-serif" color="#000000">7</text>
+<text x="61.5" y="45.5" font-size="5" font-family="sans-serif" color="#000000">6</text>
 <use href="#letter" x="80" y="40" />
 <use href="#letter" x="20" y="60" />
-<text x="21.5" y="65.5" font-size="5" font-family="sans-serif" color="#000000">8</text>
+<text x="21.5" y="65.5" font-size="5" font-family="sans-serif" color="#000000">7</text>
 <use href="#letter" x="40" y="60" />
 <use href="#letter" x="60" y="60" />
 <use href="#letter" x="80" y="60" />
