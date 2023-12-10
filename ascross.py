@@ -81,7 +81,8 @@ def map_clues(grid, input_clues, direction):
                     letter_col_idx = start_col_idx
                     for i in range(1000):
                         if (letter_row_idx >= len(grid) or
-                            letter_col_idx >= len(grid[letter_row_idx])):
+                            letter_col_idx >= len(grid[letter_row_idx]) or
+                            grid[letter_row_idx][letter_col_idx].kind != CellKind.LETTER):
                             # Out of letters in the current direction
                             if i == 1 or i < len(prefix) - 1:
                                 # Only one letter (This is not a word) or
