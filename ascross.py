@@ -308,9 +308,9 @@ def main():
 
         match args.format:
             case 'a4':
-                write_a4_one_page(f, config, grid, args.page_num + i, clues_horizontal, clues_vertical, args.solution)
+                write_a4_one_page(f, config, grid, args.page_num + i if args.page_num else None, clues_horizontal, clues_vertical, args.solution)
             case 'a5two':
-                write_a5_two_page(f, config, grid, args.page_num + i * 2, clues_horizontal, clues_vertical, args.solution)
+                write_a5_two_page(f, config, grid, args.page_num + i * 2 if args.page_num else None, clues_horizontal, clues_vertical, args.solution)
             case 'svg':
                 f.write(svg_grid(grid, args.solution, svg_file=True))
     f.close()
