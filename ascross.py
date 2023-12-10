@@ -116,10 +116,11 @@ def print_grid(grid):
 def svg_grid(grid, with_solution=False, svg_file=True):
     # Check svg: In venv, pip install svgcheck, svgcheck file.svg
     svg = ''
-    #svg += '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n'
+    if svg_file:
+        svg += '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n'
     # viewBox relates to the coordinates used when drawing. width and height can be set on the tag used in a web page to select the final size.
     CELL_SIDE = 20
-    svg += f'<svg viewBox="0 0 {CELL_SIDE * len(grid[0])} {CELL_SIDE * len(grid)}" xmlns="http://www.w3.org/CELL_SIDE00/svg" class="grid">\n'
+    svg += f'<svg viewBox="0 0 {CELL_SIDE * len(grid[0])} {CELL_SIDE * len(grid)}" xmlns="http://www.w3.org/2000/svg" class="grid">\n'
     svg += '<defs>'
     svg += f'<rect id="blocked" width="{CELL_SIDE}" height="{CELL_SIDE}" stroke-width="0.5" stroke="#000000" fill="#000000" />\n'
     svg += f'<rect id="letter" width="{CELL_SIDE}" height="{CELL_SIDE}" stroke-width="0.5" stroke="#000000" fill="#ffffff" />\n'
@@ -256,7 +257,7 @@ def write_a4_one_page(f, config, grid, first_page_num, clues_horizontal, clues_v
 def main():
     argparser = argparse.ArgumentParser()
     argparser.add_argument('--debug', '-D', action='store_true', help="Print debug information")
-    argparser.add_argument('--format', choices=['a4', 'a5two'], default='A4', help="Page format")
+    argparser.add_argument('--format', choices=['a4', 'a5two', 'svg'], default='A4', help="Page format")
     argparser.add_argument('--page-num', type=int, help="Number the pages starting at the given number")
     argparser.add_argument('--solution', action='store_true', help="Output the solution (fill in the boxes)")
     argparser.add_argument('CROSSWORD', nargs='+', type=argparse.FileType('rb'), help="Input files")
