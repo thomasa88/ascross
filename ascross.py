@@ -165,10 +165,16 @@ def write_style(f, page_size):
     li { margin-bottom: 5px; }
     body {
         font-family: serif;
-        font-size: 10pt;
     }
-    h1 { font-size: 16pt; }
-    h2 { font-size: 12pt; }
+    
+    body.A4 { font-size: 12pt; }
+    .A4 h1 { font-size: 18pt; }
+    .A4 h2 { font-size: 16pt; }
+    
+    body.A5 { font-size: 10pt; }
+    .A5 h1 { font-size: 16pt; }
+    .A5 h2 { font-size: 12pt; }
+    
     .footer {
         position: absolute;
         bottom: 0.5cm;
