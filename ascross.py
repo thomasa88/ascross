@@ -168,7 +168,7 @@ def clues_div(clues, title):
 
 def write_style(f, page_size):
     f.write('''
-    <!-- Generated using ascross -->
+    <!-- Generated using ascross. https://github.com/thomasa88/ascross -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/paper-css/0.3.0/paper.css">
     <style>
     @page { size: ''' + page_size + '''; }
