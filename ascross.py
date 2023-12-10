@@ -172,7 +172,7 @@ def write_style(f, page_size):
         font-size: 10pt;
     }
     h1 { font-size: 16pt; }
-    h2 { font-size: 13pt; }
+    h2 { font-size: 12pt; }
     .footer {
         position: absolute;
         bottom: 0.5cm;
@@ -192,8 +192,8 @@ def write_style(f, page_size):
         padding: 10mm;
         padding-right: 20mm;
     }
-    .grid-container.even {
-       padding-right: 10mm; 
+    .grid-container.odd {
+       padding-left: 5mm; 
     }
     </style>
     ''')
@@ -206,18 +206,15 @@ def write_a5_two_page(f, config, grid, clues_horizontal, clues_vertical):
     <body class="A5">
     <section class="sheet even">
         <h1>{input_title}</h1>
-        <div class="grid-container even vertical-center">
-            {svg_grid(grid, with_solution=False)}
-        </div>
-        <div class="footer even">10</div>
-    </section>
-    <section class="sheet odd">
-        <!-- The content should be below the header on the other page. Insert an empty
-            header to get the correct spacing. -->
-        <h1>&nbsp;</h1>
         {clues_div(clues_horizontal, 'Vågrätt')}
         {clues_div(clues_vertical, 'Lodrätt')}
         <div>{config['extra_text']}</div>
+        <div class="footer even">10</div>
+    </section>
+    <section class="sheet odd">
+        <div class="grid-container odd vertical-center">
+            {svg_grid(grid, with_solution=False)}
+        </div>
         <div class="footer odd">10</div>
     </section>
     </body>
