@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 import tomllib
+import argparse
 
 CellKind = Enum('CellKind', ['OUTSIDE', 'LETTER', 'BLOCKED'])
 Direction = Enum('Direction', ['HORIZONTAL', 'VERTICAL'])
@@ -28,35 +29,29 @@ class Cell:
                 self.starting_point_num = next_starting_point_num
                 next_starting_point_num += 1
 
-with open('crosswords/fredagskrypto_10.toml', 'rb') as config_file:
-    config = tomllib.load(config_file)
+def load_config(filename):
+    with open(filename, 'rb') as config_file:
+        return tomllib.load(config_file)
 
-input_title = config['title']
+def parse_grid(input_grid):
+    input_lines = input_grid.split('\n')
+    grid = []
+    max_line_len = 0
+    for line in input_lines:
+        max_line_len = max(max_line_len, len(line))
 
-xinput = config['grid']
+    for line in input_lines:
+        # Making a square grid, so that it can be assumed later
+        row = [Cell(c) for c in line] + [Cell(' ')] * (max_line_len - len(line))
+        grid.append(row)
+    return grid
 
-input_clues_horizontal = config['clues_horizontal'].strip()
-input_clues_vertical = config['clues_vertical'].strip()
-extra_text = config['extra_text'].strip()
-
-input_lines = xinput.split('\n')
-
-grid = []
-max_line_len = 0
-for line in input_lines:
-    max_line_len = max(max_line_len, len(line))
-
-for line in input_lines:
-    # Making a square grid, so that it can be assumed later
-    row = [Cell(c) for c in line] + [Cell(' ')] * (max_line_len - len(line))
-    grid.append(row)
-
-def map_clues(input_clues, direction):
+def map_clues(grid, input_clues, direction):
     clues = []
     used_starting_points = set()
     for input_clue in input_clues.split('\n'):
         mapped_clue = False
-        prefix, clue_text = input_clue.split(':')
+        prefix, clue_text = input_clue.split(':', 1)
         prefix = prefix.upper()
         for start_row_idx, row in enumerate(grid):
             for start_col_idx, cell in enumerate(row):
@@ -191,7 +186,8 @@ def write_style(f, page_size):
     </style>
     ''')
 
-def write_a5_two_page(f):
+def write_a5_two_page(f, config, grid, clues_horizontal, clues_vertical):
+    input_title = config['title']
     write_style(f, 'A5')
     f.write(f'''
     <title>{input_title}</title>
@@ -209,13 +205,14 @@ def write_a5_two_page(f):
         <h1>&nbsp;</h1>
         {clues_div(clues_horizontal, 'Vågrätt')}
         {clues_div(clues_vertical, 'Lodrätt')}
-        <div>{extra_text}</div>
+        <div>{config['extra_text']}</div>
         <div class="footer even">10</div>
     </section>
     </body>
     ''')
 
-def write_a4_one_page(f):
+def write_a4_one_page(f, config, grid, clues_horizontal, clues_vertical):
+    input_title = config['title']
     write_style(f, 'A4')
     f.write(f'''
     <title>{input_title}</title>
@@ -225,21 +222,37 @@ def write_a4_one_page(f):
         <div class="grid-container">{svg_grid(grid, with_solution=False)}</div>
         {clues_div(clues_horizontal, 'Vågrätt')}
         {clues_div(clues_vertical, 'Lodrätt')}
-        <div>{extra_text}</div>
+        <div>{config['extra_text']}</div>
         <div class="footer even">10</div>
     </section>
     </body>
     ''')
 
-#print_grid(grid)
+def main():
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument('--debug', '-D', action='store_true')
+    argparser.add_argument('--format', choices=['A4', 'A5two'], default='A4')
+    argparser.add_argument('crossword')
+    args = argparser.parse_args()
+    
+    config = load_config(args.crossword)
+    
+    grid = parse_grid(config['grid'])
+    if args.debug:
+        print_grid(grid)
+        
+    input_clues_horizontal = config['clues_horizontal'].strip()
+    input_clues_vertical = config['clues_vertical'].strip()
 
-clues_horizontal = map_clues(input_clues_horizontal, Direction.HORIZONTAL)
-clues_vertical = map_clues(input_clues_vertical, Direction.VERTICAL)
+    clues_horizontal = map_clues(grid, input_clues_horizontal, Direction.HORIZONTAL)
+    clues_vertical = map_clues(grid, input_clues_vertical, Direction.VERTICAL)
 
-f = open('out.html', 'w')
+    f = open('out.html', 'w')
+    match args.format:
+        case 'A4':
+            write_a4_one_page(f, config, grid, clues_horizontal, clues_vertical)
+        case 'A5two':
+            write_a5_two_page(f, config, grid, clues_horizontal, clues_vertical)
+    f.close()
 
-if 1:    
-    write_a4_one_page(f)
-else:
-    write_a5_two_page(f)
-f.close()
+main()
