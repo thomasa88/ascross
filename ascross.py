@@ -6,28 +6,31 @@ import argparse
 CellKind = Enum('CellKind', ['OUTSIDE', 'LETTER', 'BLOCKED'])
 Direction = Enum('Direction', ['HORIZONTAL', 'VERTICAL'])
 
-next_starting_point_num = 1
-
 @dataclass
 class Cell:
-    kind: CellKind
+    kind: CellKind = CellKind.OUTSIDE
     solution: str = None
     is_starting_point: bool = False
     starting_point_num: int = -1
     
-    def __init__(self, c):
+class CellFactory:
+    def __init__(self):
+        self.next_starting_point_num = 1
+
+    def create_cell(self, c):
+        cell = Cell()
         if c == ' ':
-            self.kind = CellKind.OUTSIDE
+            cell.kind = CellKind.OUTSIDE
         elif c == '.':
-            self.kind = CellKind.BLOCKED
+            cell.kind = CellKind.BLOCKED
         else:
-            self.kind = CellKind.LETTER
-            self.solution = c.upper()
-            self.is_starting_point = c.isupper()
-            if self.is_starting_point:
-                global next_starting_point_num
-                self.starting_point_num = next_starting_point_num
-                next_starting_point_num += 1
+            cell.kind = CellKind.LETTER
+            cell.solution = c.upper()
+            cell.is_starting_point = c.isupper()
+            if cell.is_starting_point:
+                cell.starting_point_num = self.next_starting_point_num
+                self.next_starting_point_num += 1
+        return cell
 
 def parse_grid(input_grid):
     input_lines = input_grid.split('\n')
@@ -36,9 +39,10 @@ def parse_grid(input_grid):
     for line in input_lines:
         max_line_len = max(max_line_len, len(line))
 
+    cell_factory = CellFactory()
     for line in input_lines:
         # Making a square grid, so that it can be assumed later
-        row = [Cell(c) for c in line] + [Cell(' ')] * (max_line_len - len(line))
+        row = [cell_factory.create_cell(c) for c in line] + [cell_factory.create_cell(' ')] * (max_line_len - len(line))
         grid.append(row)
     return grid
 
@@ -104,7 +108,7 @@ def print_grid(grid):
                     print('  #', end='')
                 case CellKind.LETTER:
                     if cell.is_starting_point:
-                        print(f'{cell.starting_point_num: 2}{cell.solution}', end='')
+                        print(f'{cell.starting_point_num: >2}{cell.solution}', end='')
                     else:
                         print(f'  {cell.solution}', end='')
         print()
