@@ -29,10 +29,6 @@ class Cell:
                 self.starting_point_num = next_starting_point_num
                 next_starting_point_num += 1
 
-def load_config(filename):
-    with open(filename, 'rb') as config_file:
-        return tomllib.load(config_file)
-
 def parse_grid(input_grid):
     input_lines = input_grid.split('\n')
     grid = []
@@ -198,9 +194,15 @@ def write_style(f, page_size):
     </style>
     ''')
 
-def write_a5_two_page(f, config, grid, clues_horizontal, clues_vertical):
+def write_a5_two_page(f, config, grid, first_page_num, clues_horizontal, clues_vertical):
     input_title = config['title']
     write_style(f, 'A5')
+    if first_page_num:
+        page_num_even = first_page_num
+        page_num_odd = first_page_num + 1
+    else:
+        page_num_even = ''
+        page_num_odd = ''
     f.write(f'''
     <title>{input_title}</title>
     <body class="A5">
@@ -209,19 +211,23 @@ def write_a5_two_page(f, config, grid, clues_horizontal, clues_vertical):
         {clues_div(clues_horizontal, 'Vågrätt')}
         {clues_div(clues_vertical, 'Lodrätt')}
         <div>{config['extra_text']}</div>
-        <div class="footer even">10</div>
+        <div class="footer even">{page_num_even}</div>
     </section>
     <section class="sheet odd">
         <div class="grid-container odd vertical-center">
             {svg_grid(grid, with_solution=False)}
         </div>
-        <div class="footer odd">10</div>
+        <div class="footer odd">{page_num_odd}</div>
     </section>
     </body>
     ''')
 
-def write_a4_one_page(f, config, grid, clues_horizontal, clues_vertical):
+def write_a4_one_page(f, config, grid, first_page_num, clues_horizontal, clues_vertical):
     input_title = config['title']
+    if first_page_num:
+        page_num = first_page_num
+    else:
+        page_num = ''
     write_style(f, 'A4')
     f.write(f'''
     <title>{input_title}</title>
@@ -232,7 +238,7 @@ def write_a4_one_page(f, config, grid, clues_horizontal, clues_vertical):
         {clues_div(clues_horizontal, 'Vågrätt')}
         {clues_div(clues_vertical, 'Lodrätt')}
         <div>{config['extra_text']}</div>
-        <div class="footer even">10</div>
+        <div class="footer odd">{first_page_num}</div>
     </section>
     </body>
     ''')
@@ -241,27 +247,29 @@ def main():
     argparser = argparse.ArgumentParser()
     argparser.add_argument('--debug', '-D', action='store_true')
     argparser.add_argument('--format', choices=['a4', 'a5two'], default='A4')
-    argparser.add_argument('crossword')
+    argparser.add_argument('--page-num', type=int)
+    argparser.add_argument('CROSSWORD', nargs='+', type=argparse.FileType('rb'))
     args = argparser.parse_args()
     
-    config = load_config(args.crossword)
-    
-    grid = parse_grid(config['grid'])
-    if args.debug:
-        print_grid(grid)
-        
-    input_clues_horizontal = config['clues_horizontal'].strip()
-    input_clues_vertical = config['clues_vertical'].strip()
-
-    clues_horizontal = map_clues(grid, input_clues_horizontal, Direction.HORIZONTAL)
-    clues_vertical = map_clues(grid, input_clues_vertical, Direction.VERTICAL)
-
     f = open('out.html', 'w')
-    match args.format:
-        case 'a4':
-            write_a4_one_page(f, config, grid, clues_horizontal, clues_vertical)
-        case 'a5two':
-            write_a5_two_page(f, config, grid, clues_horizontal, clues_vertical)
+    for i, cw in enumerate(args.CROSSWORD):
+        config = tomllib.load(cw)
+        
+        grid = parse_grid(config['grid'])
+        if args.debug:
+            print_grid(grid)
+            
+        input_clues_horizontal = config['clues_horizontal'].strip()
+        input_clues_vertical = config['clues_vertical'].strip()
+
+        clues_horizontal = map_clues(grid, input_clues_horizontal, Direction.HORIZONTAL)
+        clues_vertical = map_clues(grid, input_clues_vertical, Direction.VERTICAL)
+
+        match args.format:
+            case 'a4':
+                write_a4_one_page(f, config, grid, args.page_num + i, clues_horizontal, clues_vertical)
+            case 'a5two':
+                write_a5_two_page(f, config, grid, args.page_num + i * 2, clues_horizontal, clues_vertical)
     f.close()
 
 main()
