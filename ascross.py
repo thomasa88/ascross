@@ -113,7 +113,7 @@ def print_grid(grid):
                         print(f'  {cell.solution}', end='')
         print()
 
-def svg_grid(grid, with_solution=False):
+def svg_grid(grid, with_solution=False, svg_file=True):
     # Check svg: In venv, pip install svgcheck, svgcheck file.svg
     svg = ''
     #svg += '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n'
@@ -204,7 +204,7 @@ def write_style(f, page_size):
     </style>
     ''')
 
-def write_a5_two_page(f, config, grid, first_page_num, clues_horizontal, clues_vertical):
+def write_a5_two_page(f, config, grid, first_page_num, clues_horizontal, clues_vertical, with_solution=False):
     input_title = config['title']
     write_style(f, 'A5')
     if first_page_num:
@@ -225,14 +225,14 @@ def write_a5_two_page(f, config, grid, first_page_num, clues_horizontal, clues_v
     </section>
     <section class="sheet odd">
         <div class="grid-container odd vertical-center">
-            {svg_grid(grid, with_solution=False)}
+            {svg_grid(grid, with_solution)}
         </div>
         <div class="footer odd">{page_num_odd}</div>
     </section>
     </body>
     ''')
 
-def write_a4_one_page(f, config, grid, first_page_num, clues_horizontal, clues_vertical):
+def write_a4_one_page(f, config, grid, first_page_num, clues_horizontal, clues_vertical, with_solution=False):
     input_title = config['title']
     if first_page_num:
         page_num = first_page_num
@@ -244,7 +244,7 @@ def write_a4_one_page(f, config, grid, first_page_num, clues_horizontal, clues_v
     <body class="A4">
     <section class="sheet padding-10mm">
         <h1>{input_title}</h1>
-        <div class="grid-container">{svg_grid(grid, with_solution=False)}</div>
+        <div class="grid-container">{svg_grid(grid, with_solution)}</div>
         {clues_div(clues_horizontal, 'Vågrätt')}
         {clues_div(clues_vertical, 'Lodrätt')}
         <div>{config['extra_text']}</div>
@@ -255,10 +255,11 @@ def write_a4_one_page(f, config, grid, first_page_num, clues_horizontal, clues_v
 
 def main():
     argparser = argparse.ArgumentParser()
-    argparser.add_argument('--debug', '-D', action='store_true')
-    argparser.add_argument('--format', choices=['a4', 'a5two'], default='A4')
-    argparser.add_argument('--page-num', type=int)
-    argparser.add_argument('CROSSWORD', nargs='+', type=argparse.FileType('rb'))
+    argparser.add_argument('--debug', '-D', action='store_true', help="Print debug information")
+    argparser.add_argument('--format', choices=['a4', 'a5two'], default='A4', help="Page format")
+    argparser.add_argument('--page-num', type=int, help="Number the pages starting at the given number")
+    argparser.add_argument('--solution', action='store_true', help="Output the solution (fill in the boxes)")
+    argparser.add_argument('CROSSWORD', nargs='+', type=argparse.FileType('rb'), help="Input files")
     args = argparser.parse_args()
     
     f = open('out.html', 'w')
@@ -277,9 +278,12 @@ def main():
 
         match args.format:
             case 'a4':
-                write_a4_one_page(f, config, grid, args.page_num + i, clues_horizontal, clues_vertical)
+                write_a4_one_page(f, config, grid, args.page_num + i, clues_horizontal, clues_vertical, args.solution)
             case 'a5two':
-                write_a5_two_page(f, config, grid, args.page_num + i * 2, clues_horizontal, clues_vertical)
+                write_a5_two_page(f, config, grid, args.page_num + i * 2, clues_horizontal, clues_vertical, args.solution)
+            case 'svg':
+                with open('out.svg', 'w') as f:
+                    f.write(svg_grid(grid, args.solution, svg_file=True))
     f.close()
 
 main()
