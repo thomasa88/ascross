@@ -1,0 +1,19 @@
+title = "Thomas Mikrokrypto"
+
+grid = """
+SoL
+ö.å
+Mus
+"""
+
+clues_horizontal = """
+S:Stjärna
+M:Gnagare
+"""
+
+clues_vertical = """
+S:Kan var sicksack
+L:Håller ute ute och inne inne
+"""
+
+extra_text = """"""

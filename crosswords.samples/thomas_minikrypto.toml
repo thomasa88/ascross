@@ -1,0 +1,24 @@
+title = "Thomas Minikrypto"
+
+grid = """
+ HUS
+SatiR
+ R.Lä
+ Valv
+"""
+
+clues_horizontal = """
+H:Campingbostad utan släp = byggnad
+SA:Ritas bakvänd humor
+L:Läser främst stilla
+V:Böj spelbolag utan EA
+"""
+
+clues_vertical = """
+H:Krångel runt där vänster blir höger
+U:Ej in i rutor
+S:Strömming lär sig köra i England efter nätredskap
+R:Strävar inuti skabbdjur
+"""
+
+extra_text = """"""

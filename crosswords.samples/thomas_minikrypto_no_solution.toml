@@ -1,0 +1,24 @@
+title = "Thomas Minikrypto (Utan lösning)"
+
+grid = """
+ ABC
+DxxxE
+ x.Fx
+ Gxxx
+"""
+
+clues_horizontal = """
+A:Campingbostad utan släp = byggnad
+D:Ritas bakvänd humor
+F:Läser främst stilla
+G:Böj spelbolag utan EA
+"""
+
+clues_vertical = """
+A:Krångel runt där vänster blir höger
+B:Ej in i rutor
+C:Strömming lär sig köra i England efter nätredskap
+E:Strävar inuti skabbdjur
+"""
+
+extra_text = """"""

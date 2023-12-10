@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg viewBox="0 0 100 100" width="5.0cm" xmlns="http://www.w3.org/2000/svg" class="grid">
+<defs><rect id="blocked" width="20" height="20" stroke-width="0.5" stroke="#000000" fill="#000000" />
+<rect id="letter" width="20" height="20" stroke-width="0.5" stroke="#000000" fill="#ffffff" />
+</defs><use href="#letter" x="20" y="0" />
+<text x="21.5" y="5.5" font-size="5" font-family="sans-serif" color="#000000">1</text>
+<use href="#letter" x="40" y="0" />
+<text x="41.5" y="5.5" font-size="5" font-family="sans-serif" color="#000000">2</text>
+<use href="#letter" x="60" y="0" />
+<text x="61.5" y="5.5" font-size="5" font-family="sans-serif" color="#000000">3</text>
+<use href="#letter" x="0" y="20" />
+<text x="1.5" y="25.5" font-size="5" font-family="sans-serif" color="#000000">4</text>
+<use href="#letter" x="20" y="20" />
+<use href="#letter" x="40" y="20" />
+<use href="#letter" x="60" y="20" />
+<use href="#letter" x="80" y="20" />
+<text x="81.5" y="25.5" font-size="5" font-family="sans-serif" color="#000000">5</text>
+<use href="#letter" x="20" y="40" />
+<text x="21.5" y="45.5" font-size="5" font-family="sans-serif" color="#000000">6</text>
+<use href="#blocked" x="40" y="40" />
+<use href="#letter" x="60" y="40" />
+<text x="61.5" y="45.5" font-size="5" font-family="sans-serif" color="#000000">7</text>
+<use href="#letter" x="80" y="40" />
+<use href="#letter" x="20" y="60" />
+<text x="21.5" y="65.5" font-size="5" font-family="sans-serif" color="#000000">8</text>
+<use href="#letter" x="40" y="60" />
+<use href="#letter" x="60" y="60" />
+<use href="#letter" x="80" y="60" />
+</svg>

@@ -1,2 +1,4 @@
 *.svg
 *.html
+!crosswords.samples/*.svg
+!crosswords.samples/*.html
