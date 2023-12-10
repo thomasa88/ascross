@@ -244,7 +244,7 @@ def write_a4_one_page(f, config, grid, first_page_num, clues_horizontal, clues_v
         {clues_div(clues_horizontal, 'Vågrätt')}
         {clues_div(clues_vertical, 'Lodrätt')}
         <div>{config['extra_text']}</div>
-        <div class="footer odd">{first_page_num}</div>
+        <div class="footer odd">{page_num}</div>
     </section>
     </body>
     ''')
