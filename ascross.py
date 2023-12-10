@@ -136,11 +136,8 @@ def svg_grid(grid, with_solution=False, svg_file=False):
     svg = ''
     if svg_file:
         svg += '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n'
-    else:
-        # Fixed cell width
-        svg += f'<style>.grid {{ width: {len(grid[0]) * 0.9}cm; }} </style>'
     # viewBox relates to the coordinates used when drawing. width and height can be set on the tag used in a web page to select the final size.
-    svg += f'<svg viewBox="0 0 {CELL_SIDE * len(grid[0])} {CELL_SIDE * len(grid)}" xmlns="http://www.w3.org/2000/svg" class="grid">\n'
+    svg += f'<svg viewBox="0 0 {CELL_SIDE * len(grid[0])} {CELL_SIDE * len(grid)}" width="{len(grid[0]) * 1.0}cm" xmlns="http://www.w3.org/2000/svg" class="grid">\n'
     svg += '<defs>'
     svg += f'<rect id="blocked" width="{CELL_SIDE}" height="{CELL_SIDE}" stroke-width="0.5" stroke="#000000" fill="#000000" />\n'
     svg += f'<rect id="letter" width="{CELL_SIDE}" height="{CELL_SIDE}" stroke-width="0.5" stroke="#000000" fill="#ffffff" />\n'
