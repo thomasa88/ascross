@@ -130,7 +130,7 @@ def print_grid(grid):
                         print(f'  {cell.solution}', end='')
         print()
 
-def svg_grid(grid, with_solution=False, svg_file=True):
+def svg_grid(grid, with_solution=False, svg_file=False):
     # Check svg: In venv, pip install svgcheck, svgcheck file.svg
     svg = ''
     if svg_file:
