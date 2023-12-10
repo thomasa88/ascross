@@ -243,7 +243,7 @@ def write_a4_one_page(f, config, grid, clues_horizontal, clues_vertical):
 def main():
     argparser = argparse.ArgumentParser()
     argparser.add_argument('--debug', '-D', action='store_true')
-    argparser.add_argument('--format', choices=['A4', 'A5two'], default='A4')
+    argparser.add_argument('--format', choices=['a4', 'a5two'], default='A4')
     argparser.add_argument('crossword')
     args = argparser.parse_args()
     
@@ -261,9 +261,9 @@ def main():
 
     f = open('out.html', 'w')
     match args.format:
-        case 'A4':
+        case 'a4':
             write_a4_one_page(f, config, grid, clues_horizontal, clues_vertical)
-        case 'A5two':
+        case 'a5two':
             write_a5_two_page(f, config, grid, clues_horizontal, clues_vertical)
     f.close()
 
