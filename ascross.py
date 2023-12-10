@@ -216,7 +216,7 @@ def write_style(f, page_size):
         padding: 10mm;
         padding-right: 20mm;
     }
-    .grid-container.odd {
+    .grid-container.vertical-center.odd {
        padding-left: 5mm; 
     }
     </style>
@@ -242,7 +242,9 @@ def write_a5_two_page(f, config, grid, first_page_num, clues_horizontal, clues_v
         <div class="footer even">{page_num_even}</div>
     </section>
     <section class="sheet odd">
-        <div class="grid-container odd vertical-center">
+        <!-- Pad down to content height -->
+        <h1>&nbsp;</h1>
+        <div class="grid-container odd">
             {svg_grid(grid, with_solution)}
         </div>
         <div class="footer odd">{page_num_odd}</div>
