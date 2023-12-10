@@ -132,11 +132,14 @@ def print_grid(grid):
 
 def svg_grid(grid, with_solution=False, svg_file=False):
     # Check svg: In venv, pip install svgcheck, svgcheck file.svg
+    CELL_SIDE = 20
     svg = ''
     if svg_file:
         svg += '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n'
+    else:
+        # Fixed cell width
+        svg += f'<style>.grid {{ width: {len(grid[0]) * 0.9}cm; }} </style>'
     # viewBox relates to the coordinates used when drawing. width and height can be set on the tag used in a web page to select the final size.
-    CELL_SIDE = 20
     svg += f'<svg viewBox="0 0 {CELL_SIDE * len(grid[0])} {CELL_SIDE * len(grid)}" xmlns="http://www.w3.org/2000/svg" class="grid">\n'
     svg += '<defs>'
     svg += f'<rect id="blocked" width="{CELL_SIDE}" height="{CELL_SIDE}" stroke-width="0.5" stroke="#000000" fill="#000000" />\n'
@@ -172,7 +175,7 @@ def write_style(f, page_size):
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/paper-css/0.3.0/paper.css">
     <style>
     @page { size: ''' + page_size + '''; }
-    .grid { width: 400px; margin: 20px; }
+    .grid { margin: 20px; }
     .grid-container {
         text-align: center;
     }
