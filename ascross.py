@@ -277,7 +277,7 @@ def write_a4_one_page(f, config, grid, first_page_num, clues_horizontal, clues_v
 def main():
     argparser = argparse.ArgumentParser()
     argparser.add_argument('--debug', '-D', action='store_true', help="Print debug information")
-    argparser.add_argument('--format', choices=['a4', 'a5two', 'svg'], default='A4', help="Page format")
+    argparser.add_argument('--format', choices=['a4', 'a5two', 'svg'], default='a4', help="Page format")
     argparser.add_argument('--page-num', type=int, help="Number the pages starting at the given number")
     argparser.add_argument('--solution', action='store_true', help="Output the solution (fill in the boxes)")
     argparser.add_argument('--output', help="Name of the output file")
