@@ -4,12 +4,19 @@
 ```
 title = "Thomas Mikrokrypto"
 
+# Write the crossword grid with letters.
+# Capital letters insert a number (starting point).
+# `.` blocks a cell.
+# ` ` adds empty space
 grid = """
 SoL
 ö.å
 Mus
 """
 
+# Map the clues to the corresponding word by
+# giving a unique prefix.
+# `<prefix>:<clue>`
 clues_horizontal = """
 S:Stjärna
 M:Gnagare
@@ -20,6 +27,7 @@ S:Kan var sicksack
 L:Håller ute ute och inne inne
 """
 
+# Text written here will be added after all the other text
 extra_text = """"""
 ```
 
