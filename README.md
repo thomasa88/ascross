@@ -1,6 +1,9 @@
 # ASCROSS Crossword Renderer
 
 ## Input
+
+TODO: Document extended cells
+
 ```
 title = "Thomas Mikrokrypto"
 
@@ -10,7 +13,7 @@ title = "Thomas Mikrokrypto"
 # ` ` adds empty space
 grid = """
 SoL
-ö.å
+ö#å
 Mus
 """
 

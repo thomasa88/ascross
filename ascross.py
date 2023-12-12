@@ -29,39 +29,81 @@ class Cell:
     solution: str = None
     is_starting_point: bool = False
     starting_point_num: int = -1
-    
-class CellFactory:
-    def __init__(self):
-        self.next_starting_point_num = 1
-
-    def create_cell(self, c):
-        cell = Cell()
-        if c == ' ':
-            cell.kind = CellKind.OUTSIDE
-        elif c == '.':
-            cell.kind = CellKind.BLOCKED
-        else:
-            cell.kind = CellKind.LETTER
-            cell.solution = c.upper()
-            cell.is_starting_point = c.isupper()
-            if cell.is_starting_point:
-                cell.starting_point_num = self.next_starting_point_num
-                self.next_starting_point_num += 1
-        return cell
+    wall_right: bool = False
+    wall_bottom: bool = False
+    arrow_down: bool = False
+    arrow_right: bool = False
 
 def parse_grid(input_grid):
     input_lines = input_grid.split('\n')
-    grid = []
     max_line_len = 0
     for line in input_lines:
         max_line_len = max(max_line_len, len(line))
-
-    cell_factory = CellFactory()
+    
+    # Convert the raw input lines to a grid so that
+    # we can access it randomly.
+    input_grid = []
     for line in input_lines:
-        # Making a square grid, so that it can be assumed later
-        row = [cell_factory.create_cell(c) for c in line] + [cell_factory.create_cell(' ')] * (max_line_len - len(line))
+        row = [c for c in line] + [' '] * (max_line_len - len(line))
+        input_grid.append(row)
+
+    next_starting_point_num = 1
+    grid = []
+    input_row_count = len(input_grid)
+    input_col_count = len(input_grid[0])
+    row_idx = 0
+    while row_idx < input_row_count:
+        row = []
         grid.append(row)
+        col_idx = 0
+        while col_idx < input_col_count:
+            c = input_grid[row_idx][col_idx]
+            cell = Cell()
+            row.append(cell)
+            match c:
+                case ' ':
+                    cell.kind = CellKind.OUTSIDE
+                case '#':
+                    cell.kind = CellKind.BLOCKED
+                case _:
+                    cell.kind = CellKind.LETTER
+                    cell.solution = c.upper()
+                    cell.is_starting_point = c.isupper()
+                    if cell.is_starting_point:
+                        cell.starting_point_num = next_starting_point_num
+                        next_starting_point_num += 1
+            
+            # Is this an extended cell?
+            # TODO: Handle full set of four characters for an extended cell:
+            #  A.
+            #  ..
+            #
+            if col_idx + 1 < input_col_count:
+                c_right = input_grid[row_idx][col_idx + 1]
+                if parse_extended(cell, c_right):
+                    col_idx += 1
+            
+            col_idx += 1
+        row_idx += 1
     return grid
+
+def parse_extended(cell, c):
+    extended = True
+    match c:
+        case '.':
+            # Spacer/Null value
+            pass
+        case '|':
+            cell.wall_right = True
+        case '-':
+            cell.wall_bottom = True
+        case ')':
+            cell.arrow_down = True
+        case '(':
+            cell.arrow_right = True
+        case _:
+            extended = False
+    return extended
 
 def map_clues(grid, input_clues, direction):
     clues = []
@@ -79,6 +121,7 @@ def map_clues(grid, input_clues, direction):
                     word_length = 0
                     letter_row_idx = start_row_idx
                     letter_col_idx = start_col_idx
+                    current_direction = direction
                     for i in range(1000):
                         if (letter_row_idx >= len(grid) or
                             letter_col_idx >= len(grid[letter_row_idx]) or
@@ -96,8 +139,13 @@ def map_clues(grid, input_clues, direction):
                             break
                         
                         word_length += 1
+
+                        if letter_cell.arrow_down:
+                            current_direction = Direction.VERTICAL
+                        elif letter_cell.arrow_right:
+                            current_direction = Direction.HORIZONTAL
                         
-                        if direction == Direction.HORIZONTAL:
+                        if current_direction == Direction.HORIZONTAL:
                             letter_col_idx += 1
                         else:
                             letter_row_idx += 1
@@ -138,11 +186,27 @@ def svg_grid(grid, with_solution=False, svg_file=False):
     if svg_file:
         svg += '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n'
     # viewBox relates to the coordinates used when drawing. width and height can be set on the tag used in a web page to select the final size.
-    svg += f'<svg viewBox="0 0 {CELL_SIDE * len(grid[0])} {CELL_SIDE * len(grid)}" width="{len(grid[0]) * 1.0}cm" xmlns="http://www.w3.org/2000/svg" class="grid">\n'
-    svg += '<defs>'
-    svg += f'<rect id="blocked" width="{CELL_SIDE}" height="{CELL_SIDE}" stroke-width="0.5" stroke="#000000" fill="#000000" />\n'
-    svg += f'<rect id="letter" width="{CELL_SIDE}" height="{CELL_SIDE}" stroke-width="0.5" stroke="#000000" fill="#ffffff" />\n'
-    svg += '</defs>'
+    svg += f'''<svg viewBox="0 0 {CELL_SIDE * len(grid[0])} {CELL_SIDE * len(grid)}" width="{len(grid[0]) * 1.0}cm" xmlns="http://www.w3.org/2000/svg" class="grid">
+    <defs>
+    <rect id="blocked" width="{CELL_SIDE}" height="{CELL_SIDE}" stroke-width="0.5" stroke="#000000" fill="#000000" />
+    <rect id="letter" width="{CELL_SIDE}" height="{CELL_SIDE}" stroke-width="0.5" stroke="#000000" fill="#ffffff" />
+    <line id="wall_right" x1="{CELL_SIDE}" y1="0" x2="{CELL_SIDE}" y2="{CELL_SIDE}" stroke-width="2" stroke="#000000" />
+    <line id="wall_bottom" x1="0" y1="{CELL_SIDE}" x2="{CELL_SIDE}" y2="{CELL_SIDE}" stroke-width="2" stroke="#000000" />
+    <marker 
+      id="arrowhead" 
+      orient="auto" 
+      markerWidth="10" 
+      markerHeight="10" 
+      refX="5" 
+      refY="5"
+    >
+      <path d="M3,3 L5,5 L3,7" fill="transparent" stroke-width="0.7" stroke="#000000" />
+    </marker>
+    <polyline id="arrow_down" stroke-width="0.5" stroke="#000000" fill="transparent" marker-end="url(#arrowhead)" points="{CELL_SIDE-5},2 {CELL_SIDE-2},2 {CELL_SIDE-2},5" />
+    <polyline id="arrow_right" stroke-width="0.5" stroke="#000000" fill="transparent" marker-end="url(#arrowhead)" points="2,{CELL_SIDE-5} 2,{CELL_SIDE-2} 5,{CELL_SIDE-2}" />
+    </defs>
+    '''
+    overlay_elements = ''
     for row_idx, row in enumerate(grid):
         for col_idx, cell in enumerate(row):
             match cell.kind:
@@ -156,6 +220,15 @@ def svg_grid(grid, with_solution=False, svg_file=False):
                         svg += f'<text x="{(col_idx + 0.5) * CELL_SIDE}" y="{row_idx * CELL_SIDE + 16}" text-anchor="middle" font-size="16" font-family="sans-serif" color="#000000">{cell.solution}</text>\n'
                     if cell.is_starting_point:
                         svg += f'<text x="{col_idx * CELL_SIDE + 1.5}" y="{row_idx * CELL_SIDE + 5.5}" font-size="5" font-family="sans-serif" color="#000000">{cell.starting_point_num}</text>\n'
+            if cell.wall_right:
+                overlay_elements += f'<use href="#wall_right" x="{col_idx * CELL_SIDE}" y="{row_idx * CELL_SIDE}" />\n'
+            if cell.wall_bottom:
+                overlay_elements += f'<use href="#wall_bottom" x="{col_idx * CELL_SIDE}" y="{row_idx * CELL_SIDE}" />\n'
+            if cell.arrow_down:
+                overlay_elements += f'<use href="#arrow_down" x="{col_idx * CELL_SIDE}" y="{row_idx * CELL_SIDE}" />\n'
+            if cell.arrow_right:
+                overlay_elements += f'<use href="#arrow_right" x="{col_idx * CELL_SIDE}" y="{row_idx * CELL_SIDE}" />\n'
+    svg += overlay_elements
     svg += '</svg>'
     return svg
 
@@ -289,9 +362,11 @@ def main():
     elif args.format == 'svg':
         output_filename = 'out.svg'
     else:
-        output_filename = 'out.html' 
+        output_filename = 'out.html'
+    print(f'Writing {output_filename}')
     f = open(output_filename, 'w')
     for i, cw in enumerate(args.CROSSWORD):
+        print(f'Reading {cw.name}')
         config = tomllib.load(cw)
         
         grid = parse_grid(config['grid'])
@@ -312,5 +387,6 @@ def main():
             case 'svg':
                 f.write(svg_grid(grid, args.solution, svg_file=True))
     f.close()
+    print('Done')
 
 main()
