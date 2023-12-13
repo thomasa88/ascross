@@ -146,8 +146,12 @@ def map_clues(grid, input_clues, direction):
                             current_direction = Direction.HORIZONTAL
                         
                         if current_direction == Direction.HORIZONTAL:
+                            if letter_cell.wall_right:
+                                break
                             letter_col_idx += 1
                         else:
+                            if letter_cell.wall_bottom:
+                                break
                             letter_row_idx += 1
                     
                     if right_word:
