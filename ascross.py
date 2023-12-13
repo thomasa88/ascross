@@ -277,22 +277,26 @@ def write_style(f, page_size):
     
     .footer {
         position: absolute;
-        bottom: 0.5cm;
+        bottom: 1cm;
     }
     .footer.odd {
-        right: 0.8cm;
+        right: 1.1cm;
     }
     .footer.even {
-        left: 0.8cm;
+        left: 1.1cm;
+    }
+    /* Set up page margins (done using padding) */
+    .A4 .sheet {
+        padding: 20mm;
     }
     /* More padding towards the middle of the book */
-    .sheet.odd {
+    .A5 .sheet.odd {
         padding: 10mm;
-        padding-left: 20mm;
+        padding-left: 13mm;
     }
-    .sheet.even {
+    .A5 .sheet.even {
         padding: 10mm;
-        padding-right: 20mm;
+        padding-right: 13mm;
     }
     .grid-container.vertical-center.odd {
        padding-left: 5mm; 
@@ -340,7 +344,7 @@ def write_a4_one_page(f, config, grid, first_page_num, clues_horizontal, clues_v
     f.write(f'''
     <title>{input_title}</title>
     <body class="A4">
-    <section class="sheet padding-10mm">
+    <section class="sheet">
         <h1>{input_title}</h1>
         <div class="grid-container">{svg_grid(grid, with_solution)}</div>
         {clues_div(clues_horizontal, 'Vågrätt')}
