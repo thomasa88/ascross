@@ -316,6 +316,7 @@ def write_a5_two_page(f, config, grid, first_page_num, clues_horizontal, clues_v
         page_num_even = ''
         page_num_odd = ''
     f.write(f'''
+    <meta charset="UTF-8"> 
     <title>{input_title}</title>
     <body class="A5">
     <section class="sheet even">
@@ -344,6 +345,7 @@ def write_a4_one_page(f, config, grid, first_page_num, clues_horizontal, clues_v
         page_num = ''
     write_style(f, 'A4')
     f.write(f'''
+    <meta charset="UTF-8"> 
     <title>{input_title}</title>
     <body class="A4">
     <section class="sheet">
