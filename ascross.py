@@ -293,12 +293,12 @@ def write_style(f, page_size):
     }
     /* More padding towards the middle of the book */
     .A5 .sheet.odd {
-        padding: 10mm;
-        padding-left: 13mm;
+        padding: 12mm;
+        padding-left: 18mm;
     }
     .A5 .sheet.even {
-        padding: 10mm;
-        padding-right: 13mm;
+        padding: 12mm;
+        padding-right: 18mm;
     }
     .grid-container.vertical-center.odd {
        padding-left: 5mm; 
