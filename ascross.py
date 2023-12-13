@@ -155,15 +155,17 @@ def map_clues(grid, input_clues, direction):
                             letter_row_idx += 1
                     
                     if right_word:
+                        if mapped_clue:
+                            raise Exception(f'"{clue_text}" matches multiple prefixes.\nConsider using longer prefixes for both clues.')
                         if cell.starting_point_num in used_starting_points:
                             raise Exception(f'"{clue_text}" matches starting point {cell.starting_point_num}, which is already used:\n{[cl for cl in clues if cl[0] == cell.starting_point_num]}\nConsider using longer prefixes for both clues.')
                         used_starting_points.add(cell.starting_point_num)
                         clues.append((cell.starting_point_num, f'{clue_text} ({word_length})'))
                         mapped_clue = True
-                if mapped_clue:
-                    break
-            if mapped_clue:
-                break
+            #     if mapped_clue:
+            #         break
+            # if mapped_clue:
+            #     break
         if not mapped_clue:
             raise Exception(f"Clue was not mapped: {input_clue}")
     return sorted(clues)
