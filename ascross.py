@@ -308,7 +308,6 @@ def write_style(f, page_size):
 
 def write_a5_two_page(f, config, grid, first_page_num, clues_horizontal, clues_vertical, with_solution=False):
     input_title = config['title']
-    write_style(f, 'A5')
     if first_page_num:
         page_num_even = first_page_num
         page_num_odd = first_page_num + 1
@@ -316,9 +315,6 @@ def write_a5_two_page(f, config, grid, first_page_num, clues_horizontal, clues_v
         page_num_even = ''
         page_num_odd = ''
     f.write(f'''
-    <meta charset="UTF-8"> 
-    <title>{input_title}</title>
-    <body class="A5">
     <section class="sheet even">
         <h1>{input_title}</h1>
         {clues_div(clues_horizontal, 'Vågrätt')}
@@ -334,7 +330,6 @@ def write_a5_two_page(f, config, grid, first_page_num, clues_horizontal, clues_v
         </div>
         <div class="footer odd">{page_num_odd}</div>
     </section>
-    </body>
     ''')
 
 def write_a4_one_page(f, config, grid, first_page_num, clues_horizontal, clues_vertical, with_solution=False):
@@ -343,11 +338,7 @@ def write_a4_one_page(f, config, grid, first_page_num, clues_horizontal, clues_v
         page_num = first_page_num
     else:
         page_num = ''
-    write_style(f, 'A4')
     f.write(f'''
-    <meta charset="UTF-8"> 
-    <title>{input_title}</title>
-    <body class="A4">
     <section class="sheet">
         <h1>{input_title}</h1>
         <div class="grid-container">{svg_grid(grid, with_solution)}</div>
@@ -356,7 +347,6 @@ def write_a4_one_page(f, config, grid, first_page_num, clues_horizontal, clues_v
         <div>{config['extra_text']}</div>
         <div class="footer odd">{page_num}</div>
     </section>
-    </body>
     ''')
 
 def main():
@@ -377,6 +367,15 @@ def main():
         output_filename = 'out.html'
     print(f'Writing {output_filename}')
     f = open(output_filename, 'w')
+
+    if args.format != 'svg':
+        format_to_class = { 'a4': 'A4', 'a5two': 'A5'}
+        page_class = format_to_class[args.format]
+        f.write('<meta charset="UTF-8">') 
+        write_style(f, page_class)
+        f.write(f'''
+        <body class="{page_class}">
+        ''')
     for i, cw in enumerate(args.CROSSWORD):
         print(f'Reading {cw.name}')
         config = tomllib.load(cw)
@@ -398,6 +397,8 @@ def main():
                 write_a5_two_page(f, config, grid, args.page_num + i * 2 if args.page_num else None, clues_horizontal, clues_vertical, args.solution)
             case 'svg':
                 f.write(svg_grid(grid, args.solution, svg_file=True))
+    if format != 'svg':
+        f.write('</body>')
     f.close()
     print('Done')
 
