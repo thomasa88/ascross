@@ -34,6 +34,23 @@ class Cell:
     arrow_down: bool = False
     arrow_right: bool = False
 
+class Crossword:
+    pass
+
+def parse_crossword(input_file):
+    cw = Crossword()
+    
+    cw.config = tomllib.load(input_file)
+    cw.grid = parse_grid(cw.config['grid'])
+
+    input_clues_horizontal = cw.config['clues_horizontal'].strip()
+    input_clues_vertical = cw.config['clues_vertical'].strip()
+
+    cw.clues_horizontal = map_clues(cw.grid, input_clues_horizontal, Direction.HORIZONTAL)
+    cw.clues_vertical = map_clues(cw.grid, input_clues_vertical, Direction.VERTICAL)
+    
+    return cw
+
 def parse_grid(input_grid):
     input_lines = input_grid.split('\n')
     max_line_len = 0
@@ -185,14 +202,18 @@ def print_grid(grid):
                         print(f'  {cell.solution}', end='')
         print()
 
-def svg_grid(grid, with_solution=False, svg_file=False):
+def svg_grid(grid, with_solution=False, svg_file=False, cell_size_cm = 1.0, fixed_width=None):
     # Check svg: In venv, pip install svgcheck, svgcheck file.svg
     CELL_SIDE = 20
     svg = ''
     if svg_file:
         svg += '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n'
+    if fixed_width:
+        width = fixed_width
+    else:
+        width = f'{len(grid[0]) * cell_size_cm}cm'
     # viewBox relates to the coordinates used when drawing. width and height can be set on the tag used in a web page to select the final size.
-    svg += f'''<svg viewBox="0 0 {CELL_SIDE * len(grid[0])} {CELL_SIDE * len(grid)}" width="{len(grid[0]) * 1.0}cm" xmlns="http://www.w3.org/2000/svg" class="grid">
+    svg += f'''<svg viewBox="0 0 {CELL_SIDE * len(grid[0])} {CELL_SIDE * len(grid)}" width="{width}" xmlns="http://www.w3.org/2000/svg" class="grid">
     <defs>
     <rect id="blocked" width="{CELL_SIDE}" height="{CELL_SIDE}" stroke-width="0.5" stroke="#000000" fill="#000000" />
     <rect id="letter" width="{CELL_SIDE}" height="{CELL_SIDE}" stroke-width="0.5" stroke="#000000" fill="#ffffff" />
@@ -264,6 +285,12 @@ def write_style(f, page_size):
         top: 0; left: 0;
         right: 0; bottom: 0;
     }
+    .multi-grid-container {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        width: 100%;
+    }
     li { margin-bottom: 5px; }
     body {
         font-family: serif;
@@ -306,53 +333,92 @@ def write_style(f, page_size):
     </style>
     ''')
 
-def write_a5_two_page(f, config, grid, first_page_num, clues_horizontal, clues_vertical, with_solution=False):
-    input_title = config['title']
-    if first_page_num:
-        page_num_even = first_page_num
-        page_num_odd = first_page_num + 1
-    else:
-        page_num_even = ''
-        page_num_odd = ''
-    f.write(f'''
-    <section class="sheet even">
-        <h1>{input_title}</h1>
-        {clues_div(clues_horizontal, 'Vågrätt')}
-        {clues_div(clues_vertical, 'Lodrätt')}
-        <div>{config['extra_text']}</div>
-        <div class="footer even">{page_num_even}</div>
-    </section>
-    <section class="sheet odd">
-        <!-- Pad down to content height -->
-        <h1>&nbsp;</h1>
-        <div class="grid-container odd">
-            {svg_grid(grid, with_solution)}
-        </div>
-        <div class="footer odd">{page_num_odd}</div>
-    </section>
-    ''')
+def write_a5_two_page(f, cws, first_page_num, with_solution=False):
+    page_num = first_page_num
+    for cw in cws:
+        input_title = cw.config['title']
+        if page_num:
+            page_num_even = page_num
+            page_num_odd = page_num + 1
+            page_num += 1
+        else:
+            page_num_even = ''
+            page_num_odd = ''
+        f.write(f'''
+        <section class="sheet even">
+            <h1>{input_title}</h1>
+            {clues_div(cw.clues_horizontal, 'Vågrätt')}
+            {clues_div(cw.clues_vertical, 'Lodrätt')}
+            <div>{cw.config['extra_text']}</div>
+            <div class="footer even">{page_num_even}</div>
+        </section>
+        <section class="sheet odd">
+            <!-- Pad down to content height -->
+            <h1>&nbsp;</h1>
+            <div class="grid-container odd">
+                {svg_grid(cw.grid, with_solution)}
+            </div>
+            <div class="footer odd">{page_num_odd}</div>
+        </section>
+        ''')
 
-def write_a4_one_page(f, config, grid, first_page_num, clues_horizontal, clues_vertical, with_solution=False):
-    input_title = config['title']
+def write_a5_two_grid_page(f, cws, first_page_num, with_solution=False):
     if first_page_num:
         page_num = first_page_num
     else:
         page_num = ''
-    f.write(f'''
-    <section class="sheet">
-        <h1>{input_title}</h1>
-        <div class="grid-container">{svg_grid(grid, with_solution)}</div>
-        {clues_div(clues_horizontal, 'Vågrätt')}
-        {clues_div(clues_vertical, 'Lodrätt')}
-        <div>{config['extra_text']}</div>
-        <div class="footer odd">{page_num}</div>
-    </section>
-    ''')
+    solutions_title = 'Lösningar'
+    grids_per_page = 6
+    for p in range(len(cws) // grids_per_page):
+        odd_even = 'even' if p % 2 == 0 else 'odd'
+        f.write(f'''
+        <section class="sheet {odd_even}">
+            <h1>{solutions_title}</h1>
+                <div class="multi-grid-container">
+                ''')
+        for i in range(grids_per_page * p, min(grids_per_page * p + 6, len(cws))):
+            input_title = cws[i].config['title']
+                # <div class="grid-container odd">
+            f.write(f'''<div style="width: 50%">
+                    {input_title}
+                    {svg_grid(cws[i].grid, with_solution, fixed_width='60%')}
+                    </div>''')
+                # </div>
+        f.write(f'''
+                </div>
+            <div class="footer {odd_even}">{page_num}</div>
+        </section>
+        ''')
+        if page_num:
+            page_num += 1
+        # Only show title on the first page
+        # Put hard space to keep the header spacing
+        solutions_title = '&nbsp;'
+
+def write_a4_one_page(f, cws, first_page_num, with_solution=False):
+    if first_page_num:
+        page_num = first_page_num
+    else:
+        page_num = ''
+    for cw in cws:
+        input_title = cw.config['title']
+        f.write(f'''
+        <section class="sheet">
+            <h1>{input_title}</h1>
+            <div class="grid-container">{svg_grid(cw.grid, with_solution)}</div>
+            {clues_div(cw.clues_horizontal, 'Vågrätt')}
+            {clues_div(cw.clues_vertical, 'Lodrätt')}
+            <div>{cw.config['extra_text']}</div>
+            <div class="footer odd">{page_num}</div>
+        </section>
+        ''')
+        if page_num:
+            page_num += 1
 
 def main():
     argparser = argparse.ArgumentParser()
     argparser.add_argument('--debug', '-D', action='store_true', help="Print debug information")
-    argparser.add_argument('--format', choices=['a4', 'a5two', 'svg'], default='a4', help="Page format")
+    argparser.add_argument('--format', choices=['a4', 'a5two', 'a5two-grids', 'svg'], default='a4', help="Page format")
     argparser.add_argument('--page-num', type=int, help="Number the pages starting at the given number")
     argparser.add_argument('--solution', action='store_true', help="Output the solution (fill in the boxes)")
     argparser.add_argument('--output', help="Name of the output file")
@@ -365,38 +431,31 @@ def main():
         output_filename = 'out.svg'
     else:
         output_filename = 'out.html'
+    cws = []
+    for cw_file in args.CROSSWORD:
+        print(f'Reading {cw_file.name}')
+        cws.append(parse_crossword(cw_file))
+
     print(f'Writing {output_filename}')
     f = open(output_filename, 'w')
-
     if args.format != 'svg':
-        format_to_class = { 'a4': 'A4', 'a5two': 'A5'}
+        format_to_class = { 'a4': 'A4', 'a5two': 'A5', 'a5two-grids': 'A5'}
         page_class = format_to_class[args.format]
         f.write('<meta charset="UTF-8">') 
         write_style(f, page_class)
         f.write(f'''
         <body class="{page_class}">
         ''')
-    for i, cw in enumerate(args.CROSSWORD):
-        print(f'Reading {cw.name}')
-        config = tomllib.load(cw)
-        
-        grid = parse_grid(config['grid'])
-        if args.debug:
-            print_grid(grid)
-            
-        input_clues_horizontal = config['clues_horizontal'].strip()
-        input_clues_vertical = config['clues_vertical'].strip()
 
-        clues_horizontal = map_clues(grid, input_clues_horizontal, Direction.HORIZONTAL)
-        clues_vertical = map_clues(grid, input_clues_vertical, Direction.VERTICAL)
-
-        match args.format:
-            case 'a4':
-                write_a4_one_page(f, config, grid, args.page_num + i if args.page_num else None, clues_horizontal, clues_vertical, args.solution)
-            case 'a5two':
-                write_a5_two_page(f, config, grid, args.page_num + i * 2 if args.page_num else None, clues_horizontal, clues_vertical, args.solution)
-            case 'svg':
-                f.write(svg_grid(grid, args.solution, svg_file=True))
+    match args.format:
+        case 'a4':
+            write_a4_one_page(f, cws, args.page_num, args.solution)
+        case 'a5two':
+            write_a5_two_page(f, cws, args.page_num, args.solution)
+        case 'a5two-grids':
+            write_a5_two_grid_page(f, cws, args.page_num, args.solution)
+        case 'svg':
+            f.write(svg_grid(cws[0].grid, args.solution, svg_file=True))
     if format != 'svg':
         f.write('</body>')
     f.close()
