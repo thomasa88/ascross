@@ -294,7 +294,8 @@ def write_style(f, page_size):
     }
     li { margin-bottom: 5px; }
     body {
-        font-family: serif;
+        /* Firefox and Chromium selects different serif fonts. Be explicit to get the same size. */
+        font-family: "Noto serif";
     }
     
     body.A4 { font-size: 12pt; }
