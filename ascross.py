@@ -342,7 +342,7 @@ def write_a5_two_page(f, cws, first_page_num, with_solution=False):
         if page_num:
             page_num_even = page_num
             page_num_odd = page_num + 1
-            page_num += 1
+            page_num += 2
         else:
             page_num_even = ''
             page_num_odd = ''
