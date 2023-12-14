@@ -19,6 +19,7 @@ from dataclasses import dataclass
 from enum import Enum
 import tomllib
 import argparse
+import math
 
 CellKind = Enum('CellKind', ['OUTSIDE', 'LETTER', 'BLOCKED'])
 Direction = Enum('Direction', ['HORIZONTAL', 'VERTICAL'])
@@ -369,21 +370,19 @@ def write_a5_two_grid_page(f, cws, first_page_num, with_solution=False):
         page_num = ''
     solutions_title = 'Lösningar'
     grids_per_page = 6
-    for p in range(len(cws) // grids_per_page):
+    for p in range(math.ceil(len(cws) / grids_per_page)):
         odd_even = 'even' if p % 2 == 0 else 'odd'
         f.write(f'''
         <section class="sheet {odd_even}">
             <h1>{solutions_title}</h1>
                 <div class="multi-grid-container">
                 ''')
-        for i in range(grids_per_page * p, min(grids_per_page * p + 6, len(cws))):
+        for i in range(grids_per_page * p, min(grids_per_page * p + grids_per_page, len(cws))):
             input_title = cws[i].config['title']
-                # <div class="grid-container odd">
             f.write(f'''<div style="width: 50%">
                     {input_title}
                     {svg_grid(cws[i].grid, with_solution, fixed_width='60%')}
                     </div>''')
-                # </div>
         f.write(f'''
                 </div>
             <div class="footer {odd_even}">{page_num}</div>
